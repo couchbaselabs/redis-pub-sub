@@ -1,0 +1,5 @@
+redis==5.2.1
+pytest==7.4.2
+loguru==0.7.3
+python-dotenv==1.0.1
+pydantic==2.10.5
