@@ -38,7 +38,7 @@ except Exception as e:
 
 # Buffer and batch configurations
 message_buffer = []
-BATCH_SIZE = 100  # Number of messages to process in a batch
+BATCH_SIZE = 1000  # Number of messages to process in a batch
 FLUSH_INTERVAL = 1.0  # Interval to flush the buffer (in seconds)
 
 
