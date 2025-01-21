@@ -1,36 +1,27 @@
-# imports
 import redis
-import uuid
-from datetime import datetime
-import json
 from config import REDIS_HOST, REDIS_PORT, CHANNEL_NAME
+from pub.data_generator import generate_messages
 
 
-def publish_to_redis(data):
+def publish_to_redis(messages):
     """
-    Publish data to Redis and persist it with a unique key.
-    :param data: Data to be published to Redis.
-    :return: None
+    Publish multiple messages to Redis.
+    :param messages: List of tuples containing keys and values to publish.
     """
     try:
-        r = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=True)
+        r = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
-        # Publish message
-        r.publish(CHANNEL_NAME, data)
-        print(f"Published data to channel '{CHANNEL_NAME}': '{data}'")
+        for key, value in messages:
+            if isinstance(value, dict):  # If value is a hash
+                r.hset(key, mapping=value)
+                print(f"Published hash to Redis: {key} -> {value}")
+            else:  # If value is a string
+                r.set(key, value)
+                print(f"Published string to Redis: {key} -> {value}")
 
-        # Generate unique record key
-        message_id = str(uuid.uuid4())
-        record_key = f"{CHANNEL_NAME}:{message_id}"
-
-        # Persist message
-        message_data = {
-            "id": message_id,
-            "message": data,
-            "timestamp": datetime.now().isoformat()
-        }
-        r.hset(record_key, mapping=message_data)
-        print(f"Saved message to Redis hash '{record_key}'")
+            # Optionally publish to a channel
+            r.publish(CHANNEL_NAME, key)
+            print(f"Published key '{key}' to channel '{CHANNEL_NAME}'")
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error publishing to Redis: {e}")

@@ -3,7 +3,7 @@ import redis
 import signal
 import sys
 from config import REDIS_HOST, REDIS_PORT
-from sub.message_handler import handle_message
+from sub.message_handler import process_message
 
 # Global flag to control the listener loop
 is_running = True
@@ -32,11 +32,11 @@ def subscribe_to_keyspace_notifications():
         pubsub.psubscribe("__keyspace@0__:*")
         print("Subscribed to all keyspace notifications in database 0. Press Ctrl+C to stop.")
 
-        # Loop to listen for notifications
+        # Listen for notifications with periodic flag check
         while is_running:
-            message = pubsub.get_message(timeout=1)  # Non-blocking with a timeout
-            if message and message['type'] == 'pmessage':
-                handle_message(message)
+            message = pubsub.get_message(timeout=1)  # Non-blocking with timeout
+            if message and message['type'] == 'pmessage':  # Pattern-based message
+                process_message(message)  # Delegate to message handler
 
     except Exception as e:
         print(f"Error: {e}")
