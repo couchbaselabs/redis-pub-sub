@@ -6,7 +6,7 @@ import os
 
 if __name__ == "__main__":
     mode = os.getenv("REDIS_MODE", "publish")  # Default to "publish"
-    doc_count = int(os.getenv("DOC_COUNT", 100))
+    doc_count = int(os.getenv("DOC_COUNT", 100))  # Default to 100
 
     if mode == "publish":
         print("Generating and publishing 100 messages...")
